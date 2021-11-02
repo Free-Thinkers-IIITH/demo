@@ -81,6 +81,10 @@ def search():
     posts = fetch_from_db(query)
     return render_template('home.html', posts=posts, title="Paper Ranker", theme=1, conferencesList=conferences, topicList=topics)
 
+@app.route("/org_insertion")
+def about():
+    return render_template('org_insertion.html', theme=1)
+    
 if __name__ == "__main__":
     app.run(debug=True)
 
