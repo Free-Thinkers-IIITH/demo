@@ -9,6 +9,6 @@
 
  ```bash 
       pipenv install
-      pipenv run python3 flaskblog.py
+      pipenv run python3 app.py
   ```
 Open http://127.0.0.1:5000/
