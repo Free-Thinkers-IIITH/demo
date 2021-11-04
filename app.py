@@ -1,7 +1,9 @@
-from flask import Flask, render_template,request,url_for
+from flask import Flask, render_template, request, url_for
 from fetch import fetch_from_db
+from user_management import User
 app = Flask(__name__)
-
+app.secret_key = "hi there"
+user = User()
 # posts = [
 #     {
 #         "title": "2020 International Conference on Cyber Security and Protection of Digital Services, Cyber Security 2020, Dublin, Ireland, June 15-19, 2020",
@@ -56,35 +58,68 @@ topics = [{"subject": "Machine Learning"}, {
     "subject": "Cyber Security"}, {"subject": "Internet of things"}]
 
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
+
 
 @app.route('/login')
 def login():
     return render_template('login.html')
 
-@app.route('/login/ans', methods =['POST','GET'])
+
+@app.route('/login/ans', methods=['POST', 'GET'])
 def login_ans():
     name = request.form['username']
     pwd = request.form['password']
-    if name == "sourabh" and pwd == "1234":
-        return render_template('ans.html', info="Welcome to organization Page!")
-    else:
-        return render_template('ans.html', info="Invalid Username/Password")
+    a = user.login(name, pwd)
+    if a == 1:
+        return "successfully logged in"
+    elif a == -1:
+        return " already  logged in"
+    elif a == -2:
+        return "invalid username"
+    elif a == -3:
+        return "invalid password"
+    elif a == -4:
+        return " another user is  logged in"
 
-@app.route('/search', methods=['POST','GET'])
+
+@app.route('/register')
+def show_regeistration_page():
+    return render_template('register.html')
+
+
+@app.route('/register_in', methods=['POST', 'GET'])
+def register_user():
+    a = user.register(request.form['username'], request.form['password'],
+                      request.form['email'], request.form['department'])
+    if a == 1:
+        return render_template('login.html')
+    elif a == -1:
+        return "username taken"
+    elif a == -2:
+        return "email taken"
+
+
+@app.route('/search', methods=['POST', 'GET'])
 def search():
     query = request.form['search_query']
-    #return render_template('ans.html', info=query)
+    # return render_template('ans.html', info=query)
     posts = fetch_from_db(query)
     return render_template('home.html', posts=posts, title="Paper Ranker", theme=1, conferencesList=conferences, topicList=topics)
+
 
 @app.route("/org_insertion")
 def about():
     return render_template('org_insertion.html', theme=1)
-    
+
+
+@app.route('/logout')
+def log_out():
+    user.logout()
+    return render_template('login.html', theme=1)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
-
